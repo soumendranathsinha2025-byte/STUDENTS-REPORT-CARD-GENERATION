@@ -1,0 +1,1622 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full bg-slate-900 text-slate-100">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Soumendra Sir Biology Classes - Student Report Card Generator</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        emerald: {
+                            50: '#ecfdf5',
+                            100: '#d1fae5',
+                            500: '#10b981',
+                            600: '#059669',
+                            700: '#047857',
+                            800: '#065f46',
+                            900: '#064e3b',
+                        },
+                        gold: {
+                            400: '#facc15',
+                            500: '#eab308',
+                            600: '#ca8a04',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Chart.js CDN for Graphical Performance Visualizations -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- html2pdf.js for high-fidelity PDF Generation -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Dancing+Script:wght@600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .font-signature {
+            font-family: 'Dancing Script', cursive;
+        }
+        /* Custom scrollbars */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0f172a;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #475569;
+        }
+
+        /* Printable A4 Specifications */
+        @media print {
+            body * {
+                visibility: hidden;
+            }
+            #printableReportCard, #printableReportCard * {
+                visibility: visible;
+            }
+            #printableReportCard {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+                margin: 0;
+                padding: 12mm;
+                background: white !important;
+                color: black !important;
+                box-shadow: none !important;
+            }
+            .no-print {
+                display: none !important;
+            }
+        }
+
+        .a4-preview {
+            width: 210mm;
+            min-height: 297mm;
+            padding: 14mm;
+            margin: auto;
+            background: white;
+            color: #0f172a;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            font-size: 13px;
+            line-height: 1.4;
+        }
+    </style>
+</head>
+<body class="h-full flex flex-col overflow-hidden antialiased">
+
+    <!-- Top Header / Branding Bar -->
+    <header class="bg-slate-950 border-b border-slate-800 text-white px-4 py-3 flex-shrink-0">
+        <div class="max-w-7xl mx-auto flex flex-wrap justify-between items-center gap-4">
+            <div class="flex items-center gap-3">
+                <!-- SVG Institute Graphical Logo -->
+                <div class="relative w-12 h-12 rounded-xl bg-gradient-to-tr from-emerald-600 via-teal-500 to-emerald-400 p-0.5 shadow-lg shadow-emerald-900/40">
+                    <div class="w-full h-full bg-slate-950 rounded-[10px] flex items-center justify-center p-1.5">
+                        <svg class="w-full h-full text-emerald-400" viewBox="0 0 100 100" fill="none" stroke="currentColor">
+                            <path d="M 30,10 C 70,30 70,70 30,90" stroke="currentColor" stroke-width="6" stroke-linecap="round"/>
+                            <path d="M 70,10 C 30,30 30,70 70,90" stroke="currentColor" stroke-width="6" stroke-linecap="round"/>
+                            <line x1="36" y1="23" x2="64" y2="23" stroke="#eab308" stroke-width="4" stroke-dasharray="2 2"/>
+                            <line x1="48" y1="38" x2="52" y2="38" stroke="#eab308" stroke-width="4"/>
+                            <line x1="36" y1="77" x2="64" y2="77" stroke="#eab308" stroke-width="4" stroke-dasharray="2 2"/>
+                            <line x1="48" y1="62" x2="52" y2="62" stroke="#eab308" stroke-width="4"/>
+                            <circle cx="50" cy="50" r="10" fill="#10b981" fill-opacity="0.3" stroke="#10b981" stroke-width="2"/>
+                            <circle cx="50" cy="50" r="4" fill="#facc15"/>
+                        </svg>
+                    </div>
+                </div>
+                <div>
+                    <h1 class="text-xl font-black tracking-wide text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 via-teal-300 to-gold-400 uppercase">
+                        Soumendra Sir Biology Classes
+                    </h1>
+                    <p class="text-xs text-slate-400 flex items-center gap-3 mt-0.5">
+                        <span><i class="fa-solid fa-phone text-emerald-400 mr-1"></i>+91 8910587106</span>
+                        <span class="text-slate-600">•</span>
+                        <span><i class="fa-solid fa-location-dot text-emerald-400 mr-1"></i>Chandannagar, Hooghly</span>
+                    </p>
+                </div>
+            </div>
+
+            <!-- Quick Action Toolbar -->
+            <div class="flex items-center gap-2">
+                <button onclick="exportDataJSON()" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition">
+                    <i class="fa-solid fa-download text-emerald-400"></i> Backup Data
+                </button>
+                <label class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg text-xs font-semibold flex items-center gap-1.5 cursor-pointer transition">
+                    <i class="fa-solid fa-upload text-blue-400"></i> Restore
+                    <input type="file" id="importJsonInput" accept=".json" class="hidden" onchange="importDataJSON(event)">
+                </label>
+                <button onclick="resetSystemData()" class="px-3 py-1.5 bg-red-950/40 border border-red-800/50 hover:bg-red-900/60 text-red-300 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition">
+                    <i class="fa-solid fa-rotate-right"></i> Reset All
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Layout with Sidebar/Tabs -->
+    <div class="flex-1 flex overflow-hidden">
+        
+        <!-- Sidebar Navigation -->
+        <aside class="w-64 bg-slate-950/70 border-r border-slate-800 flex flex-col flex-shrink-0">
+            <nav class="p-4 space-y-1.5 flex-1 overflow-y-auto">
+                <button onclick="switchTab('dashboard')" id="nav-dashboard" class="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition text-emerald-400 bg-emerald-950/40 border border-emerald-800/50">
+                    <i class="fa-solid fa-chart-pie w-5 text-center text-base"></i> Analytics Dashboard
+                </button>
+                <button onclick="switchTab('students')" id="nav-students" class="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition text-slate-400 hover:bg-slate-800/60 hover:text-slate-200">
+                    <i class="fa-solid fa-users w-5 text-center text-base"></i> Student Directory
+                </button>
+                <button onclick="switchTab('entry')" id="nav-entry" class="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition text-slate-400 hover:bg-slate-800/60 hover:text-slate-200">
+                    <i class="fa-solid fa-pen-to-square w-5 text-center text-base"></i> Marks Entry & Exams
+                </button>
+                <button onclick="switchTab('reports')" id="nav-reports" class="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition text-slate-400 hover:bg-slate-800/60 hover:text-slate-200">
+                    <i class="fa-solid fa-file-invoice w-5 text-center text-base"></i> Report Card Generator
+                </button>
+            </nav>
+
+            <!-- Quick Active Student Indicator -->
+            <div class="p-4 border-t border-slate-800 bg-slate-900/60">
+                <div class="text-xs text-slate-400 uppercase font-semibold tracking-wider">Active Selected Student</div>
+                <div id="sidebarActiveStudent" class="mt-1 font-semibold text-slate-200 truncate">None Selected</div>
+                <div id="sidebarActiveExam" class="text-xs text-emerald-400 truncate">No Exam Loaded</div>
+            </div>
+        </aside>
+
+        <!-- Main Dynamic Workspace View -->
+        <main class="flex-1 overflow-y-auto bg-slate-900 p-6">
+            
+            <!-- SECTION 1: DASHBOARD -->
+            <section id="section-dashboard" class="space-y-6">
+                <div class="flex justify-between items-center">
+                    <div>
+                        <h2 class="text-2xl font-bold text-white">Dashboard & Performance Overview</h2>
+                        <p class="text-sm text-slate-400">High-level student performance metrics and record summaries</p>
+                    </div>
+                    <button onclick="switchTab('students')" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg font-semibold text-sm shadow-md transition flex items-center gap-2">
+                        <i class="fa-solid fa-user-plus"></i> Add New Student
+                    </button>
+                </div>
+
+                <!-- Summary Cards -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div class="bg-slate-800/80 border border-slate-700/60 rounded-xl p-4 shadow-sm">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <p class="text-xs font-medium text-slate-400">Total Enrolled</p>
+                                <h3 id="dashTotalStudents" class="text-2xl font-bold text-white mt-1">0</h3>
+                            </div>
+                            <div class="p-2.5 bg-emerald-950/60 text-emerald-400 rounded-lg border border-emerald-800/40">
+                                <i class="fa-solid fa-user-graduate text-lg"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-slate-800/80 border border-slate-700/60 rounded-xl p-4 shadow-sm">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <p class="text-xs font-medium text-slate-400">Exams Recorded</p>
+                                <h3 id="dashTotalExams" class="text-2xl font-bold text-white mt-1">0</h3>
+                            </div>
+                            <div class="p-2.5 bg-blue-950/60 text-blue-400 rounded-lg border border-blue-800/40">
+                                <i class="fa-solid fa-book-bookmark text-lg"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-slate-800/80 border border-slate-700/60 rounded-xl p-4 shadow-sm">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <p class="text-xs font-medium text-slate-400">Batch Average %</p>
+                                <h3 id="dashAvgPercent" class="text-2xl font-bold text-emerald-400 mt-1">0.0%</h3>
+                            </div>
+                            <div class="p-2.5 bg-gold-950/60 text-gold-400 rounded-lg border border-gold-800/40">
+                                <i class="fa-solid fa-chart-line text-lg"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-slate-800/80 border border-slate-700/60 rounded-xl p-4 shadow-sm">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <p class="text-xs font-medium text-slate-400">Top Performer</p>
+                                <h3 id="dashTopStudent" class="text-base font-bold text-white mt-1 truncate max-w-[130px]">N/A</h3>
+                            </div>
+                            <div class="p-2.5 bg-purple-950/60 text-purple-400 rounded-lg border border-purple-800/40">
+                                <i class="fa-solid fa-trophy text-lg"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Students Quick List -->
+                <div class="bg-slate-800/50 border border-slate-700/60 rounded-xl p-5">
+                    <h3 class="text-lg font-semibold text-white mb-4 flex items-center justify-between">
+                        <span><i class="fa-solid fa-clock-rotate-left text-emerald-400 mr-2"></i>Recent Student Performance</span>
+                        <span class="text-xs text-slate-400 font-normal">Auto-updated from saved data</span>
+                    </h3>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-sm text-slate-300">
+                            <thead class="bg-slate-900/80 text-xs uppercase text-slate-400 border-b border-slate-700">
+                                <tr>
+                                    <th class="p-3">Roll / Reg. No.</th>
+                                    <th class="p-3">Student Name</th>
+                                    <th class="p-3">Class / Batch</th>
+                                    <th class="p-3">Last Exam</th>
+                                    <th class="p-3">Aggregate %</th>
+                                    <th class="p-3">Grade</th>
+                                    <th class="p-3 text-right">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="dashboardRecentTable" class="divide-y divide-slate-800">
+                                <!-- Dynamic Render -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SECTION 2: STUDENT MANAGEMENT -->
+            <section id="section-students" class="space-y-6 hidden">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                    <div>
+                        <h2 class="text-2xl font-bold text-white">Student Directory</h2>
+                        <p class="text-sm text-slate-400">Add, view, and organize biology student profiles</p>
+                    </div>
+                    <div class="flex gap-2 w-full md:w-auto">
+                        <input type="text" id="studentSearchInput" oninput="renderStudentsTable()" placeholder="Search student name or roll..." class="px-3.5 py-2 bg-slate-950 border border-slate-700 rounded-lg text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-emerald-500 w-full md:w-64">
+                        <button onclick="openAddStudentModal()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg font-semibold text-sm shadow transition flex items-center gap-2 whitespace-nowrap">
+                            <i class="fa-solid fa-user-plus"></i> New Student
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Students Directory Table -->
+                <div class="bg-slate-800/60 border border-slate-700/60 rounded-xl overflow-hidden shadow-lg">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-sm text-slate-300">
+                            <thead class="bg-slate-950/80 text-xs uppercase text-slate-400 border-b border-slate-700">
+                                <tr>
+                                    <th class="p-3.5">Roll No.</th>
+                                    <th class="p-3.5">Student Name</th>
+                                    <th class="p-3.5">Class / Standard</th>
+                                    <th class="p-3.5">Academic Session</th>
+                                    <th class="p-3.5">Guardian Contact</th>
+                                    <th class="p-3.5 text-center">Exams Count</th>
+                                    <th class="p-3.5 text-right">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="studentsListTable" class="divide-y divide-slate-800">
+                                <!-- Dynamic Render -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SECTION 3: MARKS & EXAM ENTRY -->
+            <section id="section-entry" class="space-y-6 hidden">
+                <div class="flex justify-between items-center flex-wrap gap-4">
+                    <div>
+                        <h2 class="text-2xl font-bold text-white">Marks & Topic Evaluations Entry</h2>
+                        <p class="text-sm text-slate-400">Configure exams and enter topic-wise biological unit marks</p>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <label class="text-sm text-slate-400 font-medium">Select Student:</label>
+                        <select id="entryStudentSelect" onchange="handleEntryStudentChange()" class="px-3 py-2 bg-slate-950 border border-slate-700 rounded-lg text-sm text-emerald-400 font-semibold focus:outline-none focus:border-emerald-500">
+                            <!-- Dynamic Options -->
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Exam Selection / Creator Panel -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <!-- Left: Exam List for Selected Student -->
+                    <div class="bg-slate-800/60 border border-slate-700/60 rounded-xl p-5 space-y-4">
+                        <div class="flex justify-between items-center">
+                            <h3 class="font-bold text-slate-100 flex items-center gap-2">
+                                <i class="fa-solid fa-file-signature text-emerald-400"></i> Student's Exams
+                            </h3>
+                            <button onclick="openCreateExamModal()" class="px-2.5 py-1 bg-emerald-700 hover:bg-emerald-600 text-white rounded text-xs font-semibold">
+                                + New Exam
+                            </button>
+                        </div>
+                        <div id="studentExamsList" class="space-y-2 max-h-[400px] overflow-y-auto pr-1">
+                            <!-- Dynamic rendering of student's exam cards -->
+                        </div>
+                    </div>
+
+                    <!-- Right: Topic Marks Entry Grid -->
+                    <div class="lg:col-span-2 bg-slate-800/60 border border-slate-700/60 rounded-xl p-5 space-y-5">
+                        <div class="flex justify-between items-center border-b border-slate-700/80 pb-3">
+                            <div>
+                                <h3 id="currentExamTitle" class="text-lg font-bold text-emerald-400">No Exam Selected</h3>
+                                <p id="currentExamSub" class="text-xs text-slate-400">Select an exam on the left or create a new one to input marks.</p>
+                            </div>
+                            <button onclick="saveCurrentExamMarks()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-xs font-bold shadow flex items-center gap-2">
+                                <i class="fa-solid fa-floppy-disk"></i> Save Entry Data
+                            </button>
+                        </div>
+
+                        <!-- Topics Marks Form Table -->
+                        <div id="marksTableContainer" class="overflow-x-auto">
+                            <table class="w-full text-left text-sm text-slate-300">
+                                <thead class="bg-slate-950/80 text-xs uppercase text-slate-400 border-b border-slate-700">
+                                    <tr>
+                                        <th class="p-3">Biology Subject Topic / Unit</th>
+                                        <th class="p-3 w-28">Max Marks</th>
+                                        <th class="p-3 w-32">Marks Obtained</th>
+                                        <th class="p-3 w-24">% Score</th>
+                                        <th class="p-3 text-right">Remove</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="topicsMarksTableBody" class="divide-y divide-slate-800">
+                                    <!-- Dynamic rows -->
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Add Custom Topic Row Action -->
+                        <div class="flex items-center justify-between pt-2">
+                            <button onclick="addNewTopicRow()" class="px-3 py-1.5 bg-slate-700 hover:bg-slate-600 text-slate-200 rounded-lg text-xs font-semibold flex items-center gap-2">
+                                <i class="fa-solid fa-plus text-emerald-400"></i> Add Biology Topic Row
+                            </button>
+                            
+                            <!-- Realtime Total Calculator Bar -->
+                            <div class="flex items-center gap-4 bg-slate-950 px-4 py-2 rounded-xl border border-slate-800">
+                                <div class="text-xs text-slate-400">Total: <span id="entrySumTotal" class="font-bold text-slate-100">0/0</span></div>
+                                <div class="text-xs text-slate-400">Percentage: <span id="entryPercentage" class="font-bold text-emerald-400">0.0%</span></div>
+                                <div class="text-xs text-slate-400">Grade: <span id="entryGrade" class="font-bold text-gold-400">N/A</span></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SECTION 4: LIVE REPORT CARD PREVIEW & EXPORT -->
+            <section id="section-reports" class="space-y-6 hidden">
+                <!-- Toolbar for Exporting -->
+                <div class="bg-slate-800/80 border border-slate-700/80 rounded-xl p-4 flex flex-wrap justify-between items-center gap-4 shadow-lg">
+                    <div class="flex items-center gap-4">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-400 uppercase">Select Student</label>
+                            <select id="reportStudentSelect" onchange="handleReportSelectorChange()" class="mt-1 px-3 py-1.5 bg-slate-950 border border-slate-700 rounded-lg text-sm text-slate-100 font-semibold focus:outline-none focus:border-emerald-500">
+                                <!-- Options -->
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-400 uppercase">Select Exam</label>
+                            <select id="reportExamSelect" onchange="updateReportCardView()" class="mt-1 px-3 py-1.5 bg-slate-950 border border-slate-700 rounded-lg text-sm text-emerald-400 font-semibold focus:outline-none focus:border-emerald-500">
+                                <!-- Options -->
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Export Buttons -->
+                    <div class="flex items-center gap-3">
+                        <button onclick="downloadAsWordDoc()" class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg font-bold text-sm shadow transition flex items-center gap-2">
+                            <i class="fa-solid fa-file-word text-base"></i> Export Editable Word (.docx)
+                        </button>
+                        <button onclick="printOrSavePDF()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg font-bold text-sm shadow transition flex items-center gap-2">
+                            <i class="fa-solid fa-file-pdf text-base"></i> Export / Print A4 PDF
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Printable Report Card Canvas container (A4 Display) -->
+                <div class="overflow-x-auto py-4 bg-slate-950/40 rounded-2xl border border-slate-800 flex justify-center">
+                    
+                    <!-- THE REPORT CARD (Standard A4 Dimensions Layout) -->
+                    <div id="printableReportCard" class="a4-preview font-sans relative border border-slate-200 shadow-2xl rounded-sm flex flex-col justify-between">
+                        <div>
+                            <!-- Header / Branding Banner -->
+                            <div class="border-b-4 border-emerald-700 pb-3 mb-4">
+                                <div class="flex items-center justify-between">
+                                    <!-- Graphical Logo SVG -->
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-14 h-14 rounded-full bg-slate-900 flex items-center justify-center p-2 border-2 border-emerald-600 flex-shrink-0">
+                                            <svg class="w-full h-full text-emerald-400" viewBox="0 0 100 100" fill="none" stroke="currentColor">
+                                                <path d="M 30,10 C 70,30 70,70 30,90" stroke="#10b981" stroke-width="7" stroke-linecap="round"/>
+                                                <path d="M 70,10 C 30,30 30,70 70,90" stroke="#059669" stroke-width="7" stroke-linecap="round"/>
+                                                <line x1="36" y1="23" x2="64" y2="23" stroke="#ca8a04" stroke-width="5"/>
+                                                <line x1="48" y1="38" x2="52" y2="38" stroke="#ca8a04" stroke-width="5"/>
+                                                <line x1="36" y1="77" x2="64" y2="77" stroke="#ca8a04" stroke-width="5"/>
+                                                <line x1="48" y1="62" x2="52" y2="62" stroke="#ca8a04" stroke-width="5"/>
+                                                <circle cx="50" cy="50" r="10" fill="#10b981" fill-opacity="0.2" stroke="#10b981" stroke-width="3"/>
+                                                <circle cx="50" cy="50" r="4" fill="#eab308"/>
+                                            </svg>
+                                        </div>
+                                        <div>
+                                            <h1 class="text-xl font-black tracking-tight text-slate-900 uppercase">Soumendra Sir Biology Classes</h1>
+                                            <p class="text-[11px] font-semibold text-emerald-800 tracking-wide uppercase">Center for Advanced Biological Studies & Board Prep</p>
+                                            <p class="text-[11px] text-slate-600 mt-0.5">
+                                                <i class="fa-solid fa-phone text-emerald-700 mr-1"></i>Contact: +91 8910587106 &nbsp;|&nbsp; 
+                                                <i class="fa-solid fa-location-dot text-emerald-700 mr-1"></i>Address: Chandannagar, Hooghly
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <div class="text-right">
+                                        <span class="inline-block px-2.5 py-0.5 bg-emerald-800 text-white font-extrabold text-[11px] uppercase tracking-wider rounded-sm">Official Report Card</span>
+                                        <div class="text-[10px] text-slate-500 mt-1 font-mono" id="reportGeneratedDate">Date: --/--/----</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Examination & Student Details Box -->
+                            <div class="bg-slate-50 border border-slate-200 rounded-md p-3 mb-4">
+                                <div class="grid grid-cols-2 gap-y-1.5 text-xs">
+                                    <div><span class="font-bold text-slate-600">Student Name:</span> <span id="rcStudentName" class="font-extrabold text-slate-900 text-sm">--</span></div>
+                                    <div><span class="font-bold text-slate-600">Roll / Registration No:</span> <span id="rcRollNo" class="font-bold text-slate-800">--</span></div>
+                                    <div><span class="font-bold text-slate-600">Class / Standard:</span> <span id="rcClass" class="font-bold text-slate-800">--</span></div>
+                                    <div><span class="font-bold text-slate-600">Academic Session:</span> <span id="rcSession" class="font-bold text-slate-800">--</span></div>
+                                    <div><span class="font-bold text-slate-600">Examination Name:</span> <span id="rcExamTitle" class="font-extrabold text-emerald-800">--</span></div>
+                                    <div><span class="font-bold text-slate-600">Exam Date:</span> <span id="rcExamDate" class="font-bold text-slate-800">--</span></div>
+                                </div>
+                            </div>
+
+                            <!-- Detailed Marks Breakdown Table -->
+                            <div class="mb-4">
+                                <h3 class="text-[11px] font-bold uppercase tracking-wider text-slate-700 mb-1.5 border-b border-slate-200 pb-1">
+                                    Topic-Wise Academic Evaluation (Biology)
+                                </h3>
+                                <table class="w-full text-left border-collapse border border-slate-300 text-xs">
+                                    <thead>
+                                        <tr class="bg-slate-100 text-slate-800 font-bold border-b border-slate-300">
+                                            <th class="p-2 border-r border-slate-300 text-center w-8">#</th>
+                                            <th class="p-2 border-r border-slate-300">Biology Topic / Subject Unit</th>
+                                            <th class="p-2 border-r border-slate-300 text-center w-24">Max Marks</th>
+                                            <th class="p-2 border-r border-slate-300 text-center w-28">Marks Obtained</th>
+                                            <th class="p-2 border-r border-slate-300 text-center w-24">Percentage (%)</th>
+                                            <th class="p-2 text-center w-28">Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="rcTopicsTableBody" class="divide-y divide-slate-200">
+                                        <!-- Dynamic rows -->
+                                    </tbody>
+                                    <tfoot>
+                                        <tr class="bg-emerald-50 font-extrabold text-slate-900 border-t-2 border-slate-400">
+                                            <td colspan="2" class="p-2 border-r border-slate-300 text-right uppercase">Sum Total:</td>
+                                            <td id="rcTotalMax" class="p-2 border-r border-slate-300 text-center">0</td>
+                                            <td id="rcTotalObtained" class="p-2 border-r border-slate-300 text-center text-emerald-800">0</td>
+                                            <td id="rcOverallPercent" class="p-2 border-r border-slate-300 text-center text-emerald-800">0.0%</td>
+                                            <td id="rcOverallGrade" class="p-2 text-center text-emerald-800">Grade: -</td>
+                                        </tr>
+                                    </tfoot>
+                                </table>
+                            </div>
+
+                            <!-- Dynamic Embedded Performance Chart -->
+                            <div class="mb-4 bg-slate-50 border border-slate-200 rounded-md p-3">
+                                <h4 class="text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-2 flex items-center justify-between">
+                                    <span><i class="fa-solid fa-chart-bar text-emerald-700 mr-1.5"></i> Graphical Performance Analysis</span>
+                                    <span class="text-[10px] text-slate-500 font-normal">Topic-wise Score Visualization (%)</span>
+                                </h4>
+                                <div class="h-40 w-full relative">
+                                    <canvas id="reportChartCanvas"></canvas>
+                                </div>
+                            </div>
+
+                            <!-- Summary Metrics Dashboard inside Report Card -->
+                            <div class="grid grid-cols-4 gap-2 mb-4 text-center text-xs">
+                                <div class="p-2 border border-slate-200 rounded bg-slate-50">
+                                    <div class="text-slate-500 font-medium text-[10px]">Grand Aggregate</div>
+                                    <div id="rcBoxAggregate" class="font-extrabold text-sm text-slate-900 mt-0.5">0 / 0</div>
+                                </div>
+                                <div class="p-2 border border-slate-200 rounded bg-slate-50">
+                                    <div class="text-slate-500 font-medium text-[10px]">Average Score</div>
+                                    <div id="rcBoxAverage" class="font-extrabold text-sm text-emerald-700 mt-0.5">0.0%</div>
+                                </div>
+                                <div class="p-2 border border-slate-200 rounded bg-slate-50">
+                                    <div class="text-slate-500 font-medium text-[10px]">Final Grade</div>
+                                    <div id="rcBoxGrade" class="font-extrabold text-sm text-emerald-800 mt-0.5">-</div>
+                                </div>
+                                <div class="p-2 border border-slate-200 rounded bg-slate-50">
+                                    <div class="text-slate-500 font-medium text-[10px]">Result Status</div>
+                                    <div id="rcBoxStatus" class="font-extrabold text-sm text-emerald-700 mt-0.5">PASSED</div>
+                                </div>
+                            </div>
+
+                            <!-- Performance aware Teacher's Remarks Section -->
+                            <div class="border border-slate-300 rounded-md p-3 mb-4 bg-slate-50/50">
+                                <h4 class="text-[11px] font-bold text-slate-800 uppercase tracking-wider mb-1 flex items-center gap-1.5">
+                                    <i class="fa-solid fa-comment-medical text-emerald-700"></i> Teacher's Remarks & Performance Assessment:
+                                </h4>
+                                <p id="rcTeacherRemarks" class="text-xs text-slate-700 italic leading-relaxed">
+                                    Performance remarks will automatically populate based on subject conceptual clarity and exam percentage score.
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Footer: Official Seal & Graphical Signature of Soumendra Nath Sinha -->
+                        <div class="pt-4 border-t border-slate-300 flex justify-between items-end mt-auto">
+                            <!-- Institution Seal Badge -->
+                            <div class="flex items-center gap-3">
+                                <div class="w-14 h-14 border-2 border-emerald-700 rounded-full flex flex-col items-center justify-center p-1 text-center text-[8px] font-bold text-emerald-800 uppercase leading-none opacity-80">
+                                    <i class="fa-solid fa-certificate text-emerald-600 text-xs mb-0.5"></i>
+                                    <span>Soumendra Sir</span>
+                                    <span>Biology</span>
+                                    <span class="text-[7px] text-slate-500">Verified</span>
+                                </div>
+                                <div class="text-[10px] text-slate-500">
+                                    <div>Parent/Guardian Signature</div>
+                                    <div class="mt-5 border-b border-slate-400 w-32"></div>
+                                </div>
+                            </div>
+
+                            <!-- Styled Graphical Teacher Signature SVG -->
+                            <div class="text-right">
+                                <div class="relative inline-block text-center">
+                                    <!-- Graphical Signature rendering -->
+                                    <svg class="w-48 h-10 text-slate-900 mb-0.5" viewBox="0 0 250 60" fill="none" stroke="currentColor">
+                                        <path d="M 10,35 C 25,10 35,5 45,30 C 50,42 55,25 60,32 C 65,39 70,30 75,32 C 80,34 85,28 90,32 C 95,35 105,15 115,28 C 120,35 125,25 130,30 C 135,35 140,25 145,30" stroke="#047857" stroke-width="2.5" stroke-linecap="round"/>
+                                        <path d="M 130,35 C 140,15 150,10 160,35 C 165,45 170,25 175,32 C 180,38 190,20 200,32 C 210,40 220,15 235,25" stroke="#047857" stroke-width="2.5" stroke-linecap="round"/>
+                                        <path d="M 5,48 Q 120,55 240,42" stroke="#eab308" stroke-width="1.5" stroke-dasharray="4 2"/>
+                                    </svg>
+                                    <div class="font-extrabold text-xs text-slate-900">Soumendra Nath Sinha</div>
+                                    <div class="text-[10px] font-semibold text-emerald-800">Faculty of Biology / Head Examiner</div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <!-- MODAL 1: Add/Edit Student Modal -->
+    <div id="studentModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
+        <div class="bg-slate-900 border border-slate-700 rounded-xl w-full max-w-md p-6 shadow-2xl space-y-4">
+            <div class="flex justify-between items-center border-b border-slate-800 pb-3">
+                <h3 id="studentModalTitle" class="text-lg font-bold text-white">Add New Biology Student</h3>
+                <button onclick="closeStudentModal()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            <form id="studentForm" onsubmit="handleStudentFormSubmit(event)" class="space-y-3 text-sm">
+                <input type="hidden" id="studentEditId">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-400 mb-1">Full Student Name *</label>
+                    <input type="text" id="mStudentName" required placeholder="e.g. Ananya Das" class="w-full px-3 py-2 bg-slate-950 border border-slate-700 rounded-lg text-slate-100 focus:outline-none focus:border-emerald-500">
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-400 mb-1">Roll / Reg No. *</label>
+                        <input type="text" id="mStudentRoll" required placeholder="e.g. BIO-2026-01" class="w-full px-3 py-2 bg-slate-950 border border-slate-700 rounded-lg text-slate-100 focus:outline-none focus:border-emerald-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-400 mb-1">Class / Standard *</label>
+                        <input type="text" id="mStudentClass" required placeholder="e.g. Class 12 (CBSE/WBCHSE)" class="w-full px-3 py-2 bg-slate-950 border border-slate-700 rounded-lg text-slate-100 focus:outline-none focus:border-emerald-500">
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-400 mb-1">Academic Session</label>
+                        <input type="text" id="mStudentSession" value="2025-2026" class="w-full px-3 py-2 bg-slate-950 border border-slate-700 rounded-lg text-slate-100 focus:outline-none focus:border-emerald-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-400 mb-1">Guardian Contact Phone</label>
+                        <input type="text" id="mStudentContact" placeholder="+91 XXXXX XXXXX" class="w-full px-3 py-2 bg-slate-950 border border-slate-700 rounded-lg text-slate-100 focus:outline-none focus:border-emerald-500">
+                    </div>
+                </div>
+                <div class="pt-3 flex justify-end gap-2">
+                    <button type="button" onclick="closeStudentModal()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-xs font-semibold">Cancel</button>
+                    <button type="submit" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-xs font-bold shadow">Save Student</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL 2: Add New Exam Modal -->
+    <div id="examModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
+        <div class="bg-slate-900 border border-slate-700 rounded-xl w-full max-w-md p-6 shadow-2xl space-y-4">
+            <div class="flex justify-between items-center border-b border-slate-800 pb-3">
+                <h3 class="text-lg font-bold text-white">Create New Exam Record</h3>
+                <button onclick="closeExamModal()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            <form id="examForm" onsubmit="handleExamFormSubmit(event)" class="space-y-3 text-sm">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-400 mb-1">Exam Title / Assessment Name *</label>
+                    <input type="text" id="mExamTitle" required placeholder="e.g. Genetics & Biotechnology Unit Mock Test" class="w-full px-3 py-2 bg-slate-950 border border-slate-700 rounded-lg text-slate-100 focus:outline-none focus:border-emerald-500">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-400 mb-1">Exam Date</label>
+                    <input type="date" id="mExamDate" required class="w-full px-3 py-2 bg-slate-950 border border-slate-700 rounded-lg text-slate-100 focus:outline-none focus:border-emerald-500">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-400 mb-1">Default Template Preset</label>
+                    <select id="mExamPreset" class="w-full px-3 py-2 bg-slate-950 border border-slate-700 rounded-lg text-slate-100 focus:outline-none focus:border-emerald-500">
+                        <option value="full">Standard Senior Secondary Biology (6 Core Topics)</option>
+                        <option value="genetics">Genetics & Evolution Specialist Test</option>
+                        <option value="physiology">Human & Plant Physiology Test</option>
+                    </select>
+                </div>
+                <div class="pt-3 flex justify-end gap-2">
+                    <button type="button" onclick="closeExamModal()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-xs font-semibold">Cancel</button>
+                    <button type="submit" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-xs font-bold shadow">Create Exam</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Custom Modal Dialog replacing alert() -->
+    <div id="customAlertModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
+        <div class="bg-slate-900 border border-slate-700 rounded-xl w-full max-w-sm p-5 shadow-2xl text-center space-y-4">
+            <div id="customAlertIcon" class="text-3xl text-emerald-400 mx-auto"><i class="fa-solid fa-circle-check"></i></div>
+            <p id="customAlertMessage" class="text-sm text-slate-200 font-medium">Notification Message</p>
+            <button onclick="closeCustomAlert()" class="px-5 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-xs font-bold shadow">
+                OK
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // Default Core Biology Topics Pre-sets
+        const PRESET_TOPICS = {
+            full: [
+                { name: "Human Physiology & Anatomy", maxMarks: 100, marksObtained: 0 },
+                { name: "Genetics & Molecular Evolution", maxMarks: 100, marksObtained: 0 },
+                { name: "Cell Biology & Cytology", maxMarks: 100, marksObtained: 0 },
+                { name: "Plant Physiology & Photosynthesis", maxMarks: 100, marksObtained: 0 },
+                { name: "Biotechnology & Applications", maxMarks: 100, marksObtained: 0 },
+                { name: "Ecology & Environmental Biology", maxMarks: 100, marksObtained: 0 }
+            ],
+            genetics: [
+                { name: "Principles of Inheritance & Variation", maxMarks: 50, marksObtained: 0 },
+                { name: "Molecular Basis of Inheritance", maxMarks: 50, marksObtained: 0 },
+                { name: "Evolutionary Biology & Speciation", maxMarks: 50, marksObtained: 0 }
+            ],
+            physiology: [
+                { name: "Human Digestion, Respiration & Circulation", maxMarks: 50, marksObtained: 0 },
+                { name: "Nervous System & Endocrine Control", maxMarks: 50, marksObtained: 0 },
+                { name: "Plant Transport & Mineral Nutrition", maxMarks: 50, marksObtained: 0 }
+            ]
+        };
+
+        // Application State Data Storage
+        let appData = {
+            students: [],
+            activeStudentId: null,
+            activeExamId: null
+        };
+
+        let reportChartInstance = null;
+
+        // Custom Notification Dialog
+        function showAlert(msg, isSuccess = true) {
+            document.getElementById('customAlertMessage').innerText = msg;
+            document.getElementById('customAlertIcon').innerHTML = isSuccess 
+                ? '<i class="fa-solid fa-circle-check text-emerald-400"></i>' 
+                : '<i class="fa-solid fa-triangle-exclamation text-amber-400"></i>';
+            document.getElementById('customAlertModal').classList.remove('hidden');
+        }
+
+        function closeCustomAlert() {
+            document.getElementById('customAlertModal').classList.add('hidden');
+        }
+
+        // Initialize App on DOM Load
+        window.addEventListener('DOMContentLoaded', () => {
+            loadFromLocalStorage();
+            if (appData.students.length === 0) {
+                seedInitialData();
+            }
+            if (appData.students.length > 0) {
+                appData.activeStudentId = appData.students[0].id;
+                if (appData.students[0].exams.length > 0) {
+                    appData.activeExamId = appData.students[0].exams[0].id;
+                }
+            }
+            updateUI();
+            
+            // Set current date in modal
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('mExamDate').value = today;
+        });
+
+        // Seed Sample Professional Data if Empty
+        function seedInitialData() {
+            const sampleStudent = {
+                id: 'std_' + Date.now(),
+                name: 'Suman Roy',
+                roll: 'BIO-2026-04',
+                className: 'Class 12 (WBCHSE / NEET)',
+                session: '2025-2026',
+                contact: '+91 98301 23456',
+                exams: [
+                    {
+                        id: 'ex_1',
+                        title: 'Mid-Term Comprehensive Biology Evaluation',
+                        date: '2026-09-15',
+                        topics: [
+                            { name: "Human Physiology & Anatomy", maxMarks: 100, marksObtained: 88 },
+                            { name: "Genetics & Molecular Evolution", maxMarks: 100, marksObtained: 92 },
+                            { name: "Cell Biology & Cytology", maxMarks: 100, marksObtained: 85 },
+                            { name: "Plant Physiology & Photosynthesis", maxMarks: 100, marksObtained: 78 },
+                            { name: "Biotechnology & Applications", maxMarks: 100, marksObtained: 95 },
+                            { name: "Ecology & Environmental Biology", maxMarks: 100, marksObtained: 90 }
+                        ]
+                    }
+                ]
+            };
+            appData.students.push(sampleStudent);
+            saveToLocalStorage();
+        }
+
+        // Save & Load LocalStorage
+        function saveToLocalStorage() {
+            localStorage.setItem('soumendra_biology_db', JSON.stringify(appData));
+        }
+
+        function loadFromLocalStorage() {
+            const raw = localStorage.getItem('soumendra_biology_db');
+            if (raw) {
+                try {
+                    appData = JSON.parse(raw);
+                } catch (e) {
+                    console.error("Error loading local storage data", e);
+                }
+            }
+        }
+
+        function resetSystemData() {
+            if (confirm("Are you sure you want to reset all stored students and exam data?")) {
+                localStorage.removeItem('soumendra_biology_db');
+                appData = { students: [], activeStudentId: null, activeExamId: null };
+                seedInitialData();
+                appData.activeStudentId = appData.students[0].id;
+                appData.activeExamId = appData.students[0].exams[0].id;
+                updateUI();
+                showAlert("System data successfully reset!");
+            }
+        }
+
+        // Navigation Tab Switching Logic
+        function switchTab(tabName) {
+            ['dashboard', 'students', 'entry', 'reports'].forEach(t => {
+                document.getElementById(`section-${t}`).classList.add('hidden');
+                const btn = document.getElementById(`nav-${t}`);
+                if (btn) {
+                    btn.classList.remove('text-emerald-400', 'bg-emerald-950/40', 'border', 'border-emerald-800/50');
+                    btn.classList.add('text-slate-400');
+                }
+            });
+
+            document.getElementById(`section-${tabName}`).classList.remove('hidden');
+            const activeBtn = document.getElementById(`nav-${tabName}`);
+            if (activeBtn) {
+                activeBtn.classList.remove('text-slate-400');
+                activeBtn.classList.add('text-emerald-400', 'bg-emerald-950/40', 'border', 'border-emerald-800/50');
+            }
+
+            if (tabName === 'reports') {
+                updateReportCardView();
+            }
+        }
+
+        // Main UI Refresh Hub
+        function updateUI() {
+            renderSidebarInfo();
+            renderDashboard();
+            renderStudentsTable();
+            populateStudentDropdowns();
+            renderExamSelectionList();
+            renderMarksEntryTable();
+            updateReportCardView();
+        }
+
+        function renderSidebarInfo() {
+            const activeStudent = getActiveStudent();
+            const activeExam = getActiveExam();
+
+            document.getElementById('sidebarActiveStudent').innerText = activeStudent ? `${activeStudent.name} (${activeStudent.roll})` : "None Selected";
+            document.getElementById('sidebarActiveExam').innerText = activeExam ? activeExam.title : "No Exam Loaded";
+        }
+
+        function getActiveStudent() {
+            return appData.students.find(s => s.id === appData.activeStudentId) || null;
+        }
+
+        function getActiveExam() {
+            const student = getActiveStudent();
+            if (!student || !student.exams) return null;
+            return student.exams.find(e => e.id === appData.activeExamId) || null;
+        }
+
+        // Calculate Grade & Remarks Scale
+        function calculateMetrics(topics) {
+            if (!topics || topics.length === 0) return { totalObtained: 0, totalMax: 0, percentage: 0, grade: 'N/A', status: 'N/A', remarks: 'No topic marks entered.' };
+            
+            let totalMax = 0;
+            let totalObtained = 0;
+
+            topics.forEach(t => {
+                totalMax += Number(t.maxMarks) || 0;
+                totalObtained += Number(t.marksObtained) || 0;
+            });
+
+            const percentage = totalMax > 0 ? (totalObtained / totalMax) * 100 : 0;
+            
+            let grade = 'F';
+            let remarks = '';
+            let status = 'PASSED';
+
+            if (percentage >= 90) {
+                grade = 'A+';
+                remarks = 'Exceptional grasp of biological concepts and diagrammatic presentation. Demonstrates outstanding precision in Molecular Genetics and Physiology. Keep up the brilliant work!';
+            } else if (percentage >= 80) {
+                grade = 'A';
+                remarks = 'Strong analytical skills in Biology. Solid concept comprehension across major units. Focus slightly more on precise botanical and zoological terminology to reach peak score.';
+            } else if (percentage >= 70) {
+                grade = 'B+';
+                remarks = 'Satisfactory performance in core units. Regular practice of NCERT diagrams, biological pathways, and systematic revision will push scores higher.';
+            } else if (percentage >= 60) {
+                grade = 'B';
+                remarks = 'Good overall effort. Needs to focus on Plant Physiology concepts and practice structured long-answer questions regularly.';
+            } else if (percentage >= 50) {
+                grade = 'C';
+                remarks = 'Fair foundation. Requires thorough revision of core concepts, consistent study habits, and extra guidance in numerical problems of Genetics.';
+            } else {
+                grade = 'F';
+                status = 'NEEDS IMPROVEMENT';
+                remarks = 'Requires immediate attention and fundamental revision of basics. Attendance in tutorial sessions and daily diagram writing practice is strongly advised.';
+            }
+
+            return {
+                totalObtained,
+                totalMax,
+                percentage: percentage.toFixed(1),
+                grade,
+                status,
+                remarks
+            };
+        }
+
+        // Render Dashboard Overview
+        function renderDashboard() {
+            document.getElementById('dashTotalStudents').innerText = appData.students.length;
+            
+            let totalExamsCount = 0;
+            let totalPercentageSum = 0;
+            let percentageCount = 0;
+            let topStudentName = "N/A";
+            let maxTopPerc = -1;
+
+            appData.students.forEach(s => {
+                totalExamsCount += (s.exams ? s.exams.length : 0);
+                if (s.exams) {
+                    s.exams.forEach(e => {
+                        const m = calculateMetrics(e.topics);
+                        const perc = parseFloat(m.percentage);
+                        totalPercentageSum += perc;
+                        percentageCount++;
+
+                        if (perc > maxTopPerc) {
+                            maxTopPerc = perc;
+                            topStudentName = s.name;
+                        }
+                    });
+                }
+            });
+
+            const avgPerc = percentageCount > 0 ? (totalPercentageSum / percentageCount).toFixed(1) : "0.0";
+            document.getElementById('dashTotalExams').innerText = totalExamsCount;
+            document.getElementById('dashAvgPercent').innerText = `${avgPerc}%`;
+            document.getElementById('dashTopStudent').innerText = topStudentName;
+
+            // Render Recent Table Body
+            const tbody = document.getElementById('dashboardRecentTable');
+            tbody.innerHTML = '';
+
+            if (appData.students.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="7" class="p-4 text-center text-slate-500">No students recorded yet.</td></tr>`;
+                return;
+            }
+
+            appData.students.forEach(student => {
+                const latestExam = student.exams && student.exams.length > 0 ? student.exams[student.exams.length - 1] : null;
+                const metrics = latestExam ? calculateMetrics(latestExam.topics) : { percentage: '0.0', grade: 'N/A' };
+
+                const tr = document.createElement('tr');
+                tr.className = 'hover:bg-slate-800/40 transition';
+                tr.innerHTML = `
+                    <td class="p-3 font-mono text-emerald-400 font-semibold">${student.roll}</td>
+                    <td class="p-3 font-bold text-slate-100">${student.name}</td>
+                    <td class="p-3 text-slate-400">${student.className}</td>
+                    <td class="p-3 text-slate-300">${latestExam ? latestExam.title : '<span class="text-slate-500">No Exam</span>'}</td>
+                    <td class="p-3 font-bold ${parseFloat(metrics.percentage) >= 75 ? 'text-emerald-400' : 'text-gold-400'}">${metrics.percentage}%</td>
+                    <td class="p-3"><span class="px-2 py-0.5 rounded text-xs font-extrabold bg-slate-900 border border-slate-700 text-gold-400">${metrics.grade}</span></td>
+                    <td class="p-3 text-right">
+                        <button onclick="selectStudentAndNavigate('${student.id}')" class="px-3 py-1 bg-emerald-950/80 border border-emerald-800/80 hover:bg-emerald-800 text-emerald-300 rounded text-xs font-semibold">
+                            Generate Report
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function selectStudentAndNavigate(studentId) {
+            appData.activeStudentId = studentId;
+            const student = getActiveStudent();
+            if (student && student.exams && student.exams.length > 0) {
+                appData.activeExamId = student.exams[0].id;
+            }
+            updateUI();
+            switchTab('reports');
+        }
+
+        // Render Student Directory
+        function renderStudentsTable() {
+            const query = (document.getElementById('studentSearchInput').value || '').toLowerCase();
+            const tbody = document.getElementById('studentsListTable');
+            tbody.innerHTML = '';
+
+            const filtered = appData.students.filter(s => 
+                s.name.toLowerCase().includes(query) || s.roll.toLowerCase().includes(query)
+            );
+
+            if (filtered.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="7" class="p-4 text-center text-slate-500">No matching students found.</td></tr>`;
+                return;
+            }
+
+            filtered.forEach(s => {
+                const tr = document.createElement('tr');
+                tr.className = 'hover:bg-slate-800/40 transition';
+                tr.innerHTML = `
+                    <td class="p-3.5 font-mono text-emerald-400 font-bold">${s.roll}</td>
+                    <td class="p-3.5 font-bold text-slate-100">${s.name}</td>
+                    <td class="p-3.5 text-slate-300">${s.className}</td>
+                    <td class="p-3.5 text-slate-400">${s.session}</td>
+                    <td class="p-3.5 text-slate-400">${s.contact || 'N/A'}</td>
+                    <td class="p-3.5 text-center"><span class="px-2 py-1 bg-slate-900 text-emerald-400 rounded-full font-bold text-xs">${s.exams ? s.exams.length : 0}</span></td>
+                    <td class="p-3.5 text-right space-x-2">
+                        <button onclick="editStudentModal('${s.id}')" class="text-blue-400 hover:text-blue-300 p-1"><i class="fa-solid fa-pen"></i></button>
+                        <button onclick="deleteStudent('${s.id}')" class="text-red-400 hover:text-red-300 p-1"><i class="fa-solid fa-trash"></i></button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // Student Modal Handlers
+        function openAddStudentModal() {
+            document.getElementById('studentEditId').value = '';
+            document.getElementById('studentModalTitle').innerText = "Add New Biology Student";
+            document.getElementById('mStudentName').value = '';
+            document.getElementById('mStudentRoll').value = `BIO-${new Date().getFullYear()}-${String(appData.students.length + 1).padStart(2, '0')}`;
+            document.getElementById('mStudentClass').value = 'Class 12 (WBCHSE/CBSE)';
+            document.getElementById('mStudentContact').value = '';
+            document.getElementById('studentModal').classList.remove('hidden');
+        }
+
+        function editStudentModal(id) {
+            const s = appData.students.find(item => item.id === id);
+            if (!s) return;
+            document.getElementById('studentEditId').value = s.id;
+            document.getElementById('studentModalTitle').innerText = "Edit Student Profile";
+            document.getElementById('mStudentName').value = s.name;
+            document.getElementById('mStudentRoll').value = s.roll;
+            document.getElementById('mStudentClass').value = s.className;
+            document.getElementById('mStudentSession').value = s.session;
+            document.getElementById('mStudentContact').value = s.contact || '';
+            document.getElementById('studentModal').classList.remove('hidden');
+        }
+
+        function closeStudentModal() {
+            document.getElementById('studentModal').classList.add('hidden');
+        }
+
+        function handleStudentFormSubmit(e) {
+            e.preventDefault();
+            const id = document.getElementById('studentEditId').value;
+            const name = document.getElementById('mStudentName').value.trim();
+            const roll = document.getElementById('mStudentRoll').value.trim();
+            const className = document.getElementById('mStudentClass').value.trim();
+            const session = document.getElementById('mStudentSession').value.trim();
+            const contact = document.getElementById('mStudentContact').value.trim();
+
+            if (id) {
+                const s = appData.students.find(item => item.id === id);
+                if (s) {
+                    s.name = name;
+                    s.roll = roll;
+                    s.className = className;
+                    s.session = session;
+                    s.contact = contact;
+                }
+            } else {
+                const newStudent = {
+                    id: 'std_' + Date.now(),
+                    name,
+                    roll,
+                    className,
+                    session,
+                    contact,
+                    exams: [
+                        {
+                            id: 'ex_' + Date.now(),
+                            title: 'Initial Assessment Test',
+                            date: new Date().toISOString().split('T')[0],
+                            topics: JSON.parse(JSON.stringify(PRESET_TOPICS.full))
+                        }
+                    ]
+                };
+                appData.students.push(newStudent);
+                appData.activeStudentId = newStudent.id;
+                appData.activeExamId = newStudent.exams[0].id;
+            }
+
+            saveToLocalStorage();
+            closeStudentModal();
+            updateUI();
+            showAlert("Student profile saved successfully!");
+        }
+
+        function deleteStudent(id) {
+            if (confirm("Are you sure you want to delete this student and all associated exam entries?")) {
+                appData.students = appData.students.filter(s => s.id !== id);
+                if (appData.activeStudentId === id) {
+                    appData.activeStudentId = appData.students.length > 0 ? appData.students[0].id : null;
+                    appData.activeExamId = appData.activeStudentId && appData.students[0].exams.length > 0 ? appData.students[0].exams[0].id : null;
+                }
+                saveToLocalStorage();
+                updateUI();
+                showAlert("Student deleted successfully.");
+            }
+        }
+
+        // Dropdown Builders
+        function populateStudentDropdowns() {
+            const entrySelect = document.getElementById('entryStudentSelect');
+            const reportSelect = document.getElementById('reportStudentSelect');
+            
+            entrySelect.innerHTML = '';
+            reportSelect.innerHTML = '';
+
+            appData.students.forEach(s => {
+                const opt1 = document.createElement('option');
+                opt1.value = s.id;
+                opt1.textContent = `${s.name} (${s.roll})`;
+                if (s.id === appData.activeStudentId) opt1.selected = true;
+                entrySelect.appendChild(opt1);
+
+                const opt2 = document.createElement('option');
+                opt2.value = s.id;
+                opt2.textContent = `${s.name} (${s.roll})`;
+                if (s.id === appData.activeStudentId) opt2.selected = true;
+                reportSelect.appendChild(opt2);
+            });
+        }
+
+        function handleEntryStudentChange() {
+            appData.activeStudentId = document.getElementById('entryStudentSelect').value;
+            const student = getActiveStudent();
+            if (student && student.exams && student.exams.length > 0) {
+                appData.activeExamId = student.exams[0].id;
+            } else {
+                appData.activeExamId = null;
+            }
+            updateUI();
+        }
+
+        function handleReportSelectorChange() {
+            appData.activeStudentId = document.getElementById('reportStudentSelect').value;
+            const student = getActiveStudent();
+            if (student && student.exams && student.exams.length > 0) {
+                appData.activeExamId = student.exams[0].id;
+            } else {
+                appData.activeExamId = null;
+            }
+            updateUI();
+        }
+
+        // Exam Rendering List
+        function renderExamSelectionList() {
+            const container = document.getElementById('studentExamsList');
+            container.innerHTML = '';
+
+            const student = getActiveStudent();
+            if (!student || !student.exams || student.exams.length === 0) {
+                container.innerHTML = `<div class="p-4 text-center text-xs text-slate-500 border border-dashed border-slate-700 rounded-lg">No exams found for student. Click '+ New Exam' to add.</div>`;
+                return;
+            }
+
+            student.exams.forEach(ex => {
+                const isSelected = ex.id === appData.activeExamId;
+                const metrics = calculateMetrics(ex.topics);
+
+                const card = document.createElement('div');
+                card.onclick = () => {
+                    appData.activeExamId = ex.id;
+                    updateUI();
+                };
+                card.className = `p-3 rounded-lg border cursor-pointer transition ${
+                    isSelected 
+                        ? 'bg-emerald-950/60 border-emerald-500 text-white shadow-md' 
+                        : 'bg-slate-900/60 border-slate-800 text-slate-300 hover:border-slate-700'
+                }`;
+
+                card.innerHTML = `
+                    <div class="flex justify-between items-start">
+                        <div class="font-bold text-sm text-slate-100 truncate max-w-[160px]">${ex.title}</div>
+                        <span class="text-[10px] px-2 py-0.5 rounded font-extrabold bg-slate-950 text-gold-400 border border-slate-700">${metrics.grade}</span>
+                    </div>
+                    <div class="text-xs text-slate-400 mt-1 flex justify-between">
+                        <span>Date: ${ex.date || 'N/A'}</span>
+                        <span class="font-semibold text-emerald-400">${metrics.percentage}%</span>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        // Exam Modal Handlers
+        function openCreateExamModal() {
+            if (!appData.activeStudentId) {
+                showAlert("Please select or create a student first.", false);
+                return;
+            }
+            document.getElementById('mExamTitle').value = '';
+            document.getElementById('examModal').classList.remove('hidden');
+        }
+
+        function closeExamModal() {
+            document.getElementById('examModal').classList.add('hidden');
+        }
+
+        function handleExamFormSubmit(e) {
+            e.preventDefault();
+            const title = document.getElementById('mExamTitle').value.trim();
+            const date = document.getElementById('mExamDate').value;
+            const presetKey = document.getElementById('mExamPreset').value;
+
+            const student = getActiveStudent();
+            if (!student) return;
+
+            const newExam = {
+                id: 'ex_' + Date.now(),
+                title,
+                date,
+                topics: JSON.parse(JSON.stringify(PRESET_TOPICS[presetKey] || PRESET_TOPICS.full))
+            };
+
+            if (!student.exams) student.exams = [];
+            student.exams.push(newExam);
+            appData.activeExamId = newExam.id;
+
+            saveToLocalStorage();
+            closeExamModal();
+            updateUI();
+            showAlert("New exam record created successfully!");
+        }
+
+        // Render Marks Entry Matrix Body
+        function renderMarksEntryTable() {
+            const tbody = document.getElementById('topicsMarksTableBody');
+            tbody.innerHTML = '';
+
+            const exam = getActiveExam();
+            if (!exam) {
+                document.getElementById('currentExamTitle').innerText = "No Exam Selected";
+                document.getElementById('currentExamSub').innerText = "Select or create an exam to configure marks.";
+                document.getElementById('entrySumTotal').innerText = "0/0";
+                document.getElementById('entryPercentage').innerText = "0.0%";
+                document.getElementById('entryGrade').innerText = "N/A";
+                return;
+            }
+
+            document.getElementById('currentExamTitle').innerText = exam.title;
+            document.getElementById('currentExamSub').innerText = `Date: ${exam.date} | Configured Units: ${exam.topics.length}`;
+
+            exam.topics.forEach((topic, idx) => {
+                const tr = document.createElement('tr');
+                tr.className = 'hover:bg-slate-900/50';
+
+                const topicPerc = topic.maxMarks > 0 ? ((topic.marksObtained / topic.maxMarks) * 100).toFixed(1) : 0;
+
+                tr.innerHTML = `
+                    <td class="p-2.5">
+                        <input type="text" value="${topic.name}" onchange="updateTopicField(${idx}, 'name', this.value)" class="w-full px-2 py-1 bg-slate-950 border border-slate-700 rounded text-sm text-slate-100 focus:outline-none focus:border-emerald-500">
+                    </td>
+                    <td class="p-2.5">
+                        <input type="number" min="1" value="${topic.maxMarks}" onchange="updateTopicField(${idx}, 'maxMarks', this.value)" class="w-20 px-2 py-1 bg-slate-950 border border-slate-700 rounded text-sm text-slate-100 focus:outline-none focus:border-emerald-500 text-center">
+                    </td>
+                    <td class="p-2.5">
+                        <input type="number" min="0" max="${topic.maxMarks}" value="${topic.marksObtained}" onchange="updateTopicField(${idx}, 'marksObtained', this.value)" class="w-24 px-2 py-1 bg-slate-950 border border-slate-700 rounded text-sm font-bold text-emerald-400 focus:outline-none focus:border-emerald-500 text-center">
+                    </td>
+                    <td class="p-2.5 font-bold text-slate-300 text-center">${topicPerc}%</td>
+                    <td class="p-2.5 text-right">
+                        <button onclick="removeTopicRow(${idx})" class="text-red-400 hover:text-red-300 p-1"><i class="fa-solid fa-trash-can"></i></button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            // Update realtime calculator stats
+            const m = calculateMetrics(exam.topics);
+            document.getElementById('entrySumTotal').innerText = `${m.totalObtained} / ${m.totalMax}`;
+            document.getElementById('entryPercentage').innerText = `${m.percentage}%`;
+            document.getElementById('entryGrade').innerText = m.grade;
+        }
+
+        function updateTopicField(index, field, value) {
+            const exam = getActiveExam();
+            if (!exam || !exam.topics[index]) return;
+
+            if (field === 'maxMarks' || field === 'marksObtained') {
+                exam.topics[index][field] = Number(value) || 0;
+            } else {
+                exam.topics[index][field] = value;
+            }
+            saveToLocalStorage();
+            renderMarksEntryTable();
+            renderExamSelectionList();
+        }
+
+        function addNewTopicRow() {
+            const exam = getActiveExam();
+            if (!exam) return;
+            exam.topics.push({
+                name: "New Biological Topic Unit",
+                maxMarks: 100,
+                marksObtained: 0
+            });
+            saveToLocalStorage();
+            renderMarksEntryTable();
+        }
+
+        function removeTopicRow(index) {
+            const exam = getActiveExam();
+            if (!exam) return;
+            exam.topics.splice(index, 1);
+            saveToLocalStorage();
+            renderMarksEntryTable();
+        }
+
+        function saveCurrentExamMarks() {
+            saveToLocalStorage();
+            showAlert("Exam marks and evaluation successfully saved!");
+            updateUI();
+        }
+
+        // Render Printable Report Card View & Dynamic Performance Chart
+        function updateReportCardView() {
+            const reportSelect = document.getElementById('reportStudentSelect');
+            const examSelect = document.getElementById('reportExamSelect');
+
+            if (reportSelect && appData.activeStudentId) {
+                reportSelect.value = appData.activeStudentId;
+            }
+
+            const student = getActiveStudent();
+            if (!student) return;
+
+            // Populate Report Exam Selector
+            if (examSelect) {
+                examSelect.innerHTML = '';
+                if (student.exams) {
+                    student.exams.forEach(e => {
+                        const opt = document.createElement('option');
+                        opt.value = e.id;
+                        opt.textContent = e.title;
+                        if (e.id === appData.activeExamId) opt.selected = true;
+                        examSelect.appendChild(opt);
+                    });
+                }
+            }
+
+            const exam = getActiveExam();
+
+            // Populate Student Header Fields
+            document.getElementById('rcStudentName').innerText = student.name;
+            document.getElementById('rcRollNo').innerText = student.roll;
+            document.getElementById('rcClass').innerText = student.className;
+            document.getElementById('rcSession').innerText = student.session;
+            document.getElementById('reportGeneratedDate').innerText = `Date: ${new Date().toLocaleDateString('en-IN')}`;
+
+            if (!exam) {
+                document.getElementById('rcExamTitle').innerText = "No Exam Recorded";
+                document.getElementById('rcExamDate').innerText = "--";
+                document.getElementById('rcTopicsTableBody').innerHTML = `<tr><td colspan="6" class="p-4 text-center text-slate-500">No exam selected.</td></tr>`;
+                return;
+            }
+
+            document.getElementById('rcExamTitle').innerText = exam.title;
+            document.getElementById('rcExamDate').innerText = exam.date || '--';
+
+            // Populate Topics Table inside Report Card
+            const tbody = document.getElementById('rcTopicsTableBody');
+            tbody.innerHTML = '';
+
+            const chartLabels = [];
+            const chartScores = [];
+
+            exam.topics.forEach((topic, idx) => {
+                const perc = topic.maxMarks > 0 ? ((topic.marksObtained / topic.maxMarks) * 100).toFixed(1) : "0.0";
+                const isPassed = parseFloat(perc) >= 40;
+
+                chartLabels.push(topic.name.length > 22 ? topic.name.substring(0, 20) + '...' : topic.name);
+                chartScores.push(parseFloat(perc));
+
+                const tr = document.createElement('tr');
+                tr.className = idx % 2 === 0 ? 'bg-white' : 'bg-slate-50/50';
+                tr.innerHTML = `
+                    <td class="p-2 border-r border-slate-300 font-mono text-center text-slate-500">${idx + 1}</td>
+                    <td class="p-2 border-r border-slate-300 font-semibold text-slate-800">${topic.name}</td>
+                    <td class="p-2 border-r border-slate-300 text-center font-mono">${topic.maxMarks}</td>
+                    <td class="p-2 border-r border-slate-300 text-center font-bold text-slate-900">${topic.marksObtained}</td>
+                    <td class="p-2 border-r border-slate-300 text-center font-semibold ${parseFloat(perc) >= 75 ? 'text-emerald-800' : 'text-slate-700'}">${perc}%</td>
+                    <td class="p-2 text-center font-bold ${isPassed ? 'text-emerald-700' : 'text-red-600'}">${isPassed ? 'Satisfactory' : 'Needs Work'}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            // Metrics Summary Fill
+            const metrics = calculateMetrics(exam.topics);
+            document.getElementById('rcTotalMax').innerText = metrics.totalMax;
+            document.getElementById('rcTotalObtained').innerText = metrics.totalObtained;
+            document.getElementById('rcOverallPercent').innerText = `${metrics.percentage}%`;
+            document.getElementById('rcOverallGrade').innerText = `Grade: ${metrics.grade}`;
+
+            document.getElementById('rcBoxAggregate').innerText = `${metrics.totalObtained} / ${metrics.totalMax}`;
+            document.getElementById('rcBoxAverage').innerText = `${metrics.percentage}%`;
+            document.getElementById('rcBoxGrade').innerText = metrics.grade;
+            document.getElementById('rcBoxStatus').innerText = metrics.status;
+            document.getElementById('rcTeacherRemarks').innerText = `"${metrics.remarks}"`;
+
+            // Render/Update Chart.js Graph Canvas
+            renderReportChart(chartLabels, chartScores);
+        }
+
+        // Render Chart.js Topic Visualization
+        function renderReportChart(labels, scores) {
+            const ctx = document.getElementById('reportChartCanvas').getContext('2d');
+            
+            if (reportChartInstance) {
+                reportChartInstance.destroy();
+            }
+
+            reportChartInstance = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Score Percentage (%)',
+                        data: scores,
+                        backgroundColor: 'rgba(5, 150, 105, 0.75)',
+                        borderColor: '#047857',
+                        borderWidth: 1.5,
+                        borderRadius: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 100,
+                            ticks: {
+                                font: { size: 9 },
+                                callback: value => value + '%'
+                            },
+                            grid: { color: '#e2e8f0' }
+                        },
+                        x: {
+                            ticks: { font: { size: 9 } },
+                            grid: { display: false }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Export 1: High Fidelity A4 PDF via html2pdf or window.print
+        function printOrSavePDF() {
+            const element = document.getElementById('printableReportCard');
+            const student = getActiveStudent();
+            const filename = `${student ? student.name.replace(/\s+/g, '_') : 'Student'}_Biology_ReportCard.pdf`;
+
+            const opt = {
+                margin:       8,
+                filename:     filename,
+                image:        { type: 'jpeg', quality: 0.98 },
+                html2canvas:  { scale: 2, useCORS: true, logging: false },
+                jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            };
+
+            if (window.html2pdf) {
+                html2pdf().set(opt).from(element).save();
+            } else {
+                window.print();
+            }
+        }
+
+        // Export 2: Download as Editable Word Document (.docx / HTML Blob format)
+        function downloadAsWordDoc() {
+            const student = getActiveStudent();
+            const exam = getActiveExam();
+            if (!student || !exam) {
+                showAlert("Please select a student and exam first.", false);
+                return;
+            }
+
+            const metrics = calculateMetrics(exam.topics);
+
+            // Construct Word HTML document structure
+            let htmlString = `
+                <html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
+                <head>
+                    <meta charset='utf-8'>
+                    <title>Report Card - ${student.name}</title>
+                    <style>
+                        body { font-family: 'Calibri', 'Arial', sans-serif; font-size: 11pt; color: #333; }
+                        h1 { font-size: 18pt; color: #047857; text-transform: uppercase; margin-bottom: 2pt; }
+                        .sub { font-size: 9pt; color: #555; margin-bottom: 15pt; }
+                        table { width: 100%; border-collapse: collapse; margin-top: 10pt; margin-bottom: 15pt; }
+                        th { background-color: #047857; color: #ffffff; padding: 6pt; border: 1pt solid #047857; text-align: left; }
+                        td { padding: 6pt; border: 1pt solid #ccc; }
+                        .total-row { background-color: #ecfdf5; font-weight: bold; }
+                        .box { border: 1pt solid #047857; padding: 10pt; background-color: #f9fafb; margin-bottom: 15pt; }
+                        .footer { margin-top: 30pt; }
+                    </style>
+                </head>
+                <body>
+                    <div style="text-align: center;">
+                        <h1>Soumendra Sir Biology Classes</h1>
+                        <div class="sub">Contact: +91 8910587106 | Address: Chandannagar, Hooghly</div>
+                        <h3 style="color: #333; text-transform: uppercase;">OFFICIAL STUDENT REPORT CARD</h3>
+                    </div>
+
+                    <div class="box">
+                        <table style="border:none; margin:0;">
+                            <tr style="border:none;">
+                                <td style="border:none;"><b>Student Name:</b> ${student.name}</td>
+                                <td style="border:none;"><b>Roll / Reg No:</b> ${student.roll}</td>
+                            </tr>
+                            <tr style="border:none;">
+                                <td style="border:none;"><b>Class / Standard:</b> ${student.className}</td>
+                                <td style="border:none;"><b>Academic Session:</b> ${student.session}</td>
+                            </tr>
+                            <tr style="border:none;">
+                                <td style="border:none;"><b>Examination:</b> ${exam.title}</td>
+                                <td style="border:none;"><b>Exam Date:</b> ${exam.date}</td>
+                            </tr>
+                        </table>
+                    </div>
+
+                    <h3>Topic-Wise Academic Performance (Biology)</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Biology Subject Topic / Unit</th>
+                                <th>Max Marks</th>
+                                <th>Marks Obtained</th>
+                                <th>Score %</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+            `;
+
+            exam.topics.forEach((t, i) => {
+                const perc = t.maxMarks > 0 ? ((t.marksObtained / t.maxMarks) * 100).toFixed(1) : "0.0";
+                htmlString += `
+                    <tr>
+                        <td>${i + 1}</td>
+                        <td>${t.name}</td>
+                        <td>${t.maxMarks}</td>
+                        <td>${t.marksObtained}</td>
+                        <td>${perc}%</td>
+                    </tr>
+                `;
+            });
+
+            htmlString += `
+                        </tbody>
+                        <tfoot>
+                            <tr class="total-row">
+                                <td colspan="2" style="text-align:right;">SUM TOTAL:</td>
+                                <td>${metrics.totalMax}</td>
+                                <td>${metrics.totalObtained}</td>
+                                <td>${metrics.percentage}%</td>
+                            </tr>
+                        </tfoot>
+                    </table>
+
+                    <div class="box">
+                        <b>Final Aggregate:</b> ${metrics.totalObtained} / ${metrics.totalMax} &nbsp;|&nbsp;
+                        <b>Average Score:</b> ${metrics.percentage}% &nbsp;|&nbsp;
+                        <b>Grade:</b> ${metrics.grade}
+                    </div>
+
+                    <div class="box">
+                        <b>Teacher's Remarks:</b><br/>
+                        <i>"${metrics.remarks}"</i>
+                    </div>
+
+                    <table style="border:none; margin-top:40pt;" class="footer">
+                        <tr style="border:none;">
+                            <td style="border:none; text-align:left; vertical-align:bottom;">
+                                _______________________<br/>
+                                Parent / Guardian Signature
+                            </td>
+                            <td style="border:none; text-align:right; vertical-align:bottom;">
+                                <b style="font-size: 14pt; font-family: 'Brush Script MT', cursive; color: #047857;">Soumendra Nath Sinha</b><br/>
+                                <b>Soumendra Nath Sinha</b><br/>
+                                Biology Teacher / Head Examiner<br/>
+                                <i>Soumendra Sir Biology Classes</i>
+                            </td>
+                        </tr>
+                    </table>
+                </body>
+                </html>
+            `;
+
+            const blob = new Blob(['\ufeff' + htmlString], {
+                type: 'application/msword'
+            });
+
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `${student.name.replace(/\s+/g, '_')}_Biology_ReportCard.doc`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        // Backup Data to JSON File
+        function exportDataJSON() {
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(appData, null, 2));
+            const downloadAnchor = document.createElement('a');
+            downloadAnchor.setAttribute("href", dataStr);
+            downloadAnchor.setAttribute("download", `Soumendra_Biology_Data_Backup_${new Date().toISOString().split('T')[0]}.json`);
+            document.body.appendChild(downloadAnchor);
+            downloadAnchor.click();
+            downloadAnchor.remove();
+        }
+
+        // Import Data from JSON File
+        function importDataJSON(event) {
+            const fileReader = new FileReader();
+            fileReader.onload = function (e) {
+                try {
+                    const imported = JSON.parse(e.target.result);
+                    if (imported && imported.students) {
+                        appData = imported;
+                        saveToLocalStorage();
+                        updateUI();
+                        showAlert("Data restored successfully!");
+                    } else {
+                        showAlert("Invalid backup file format.", false);
+                    }
+                } catch (err) {
+                    showAlert("Error parsing JSON file.", false);
+                }
+            };
+            if (event.target.files[0]) {
+                fileReader.readAsText(event.target.files[0]);
+            }
+        }
+    </script>
+</body>
+</html>
